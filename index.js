@@ -12,13 +12,14 @@ dotenv.config();
 const app = express();
 
 // Middlewares
-app.use(express.json()); // For parsing JSON requests
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+
 app.use(
   cors({
     origin: "*", // Allow all origins (you can restrict this to specific domains)
   })
-); // Enable CORS for cross-origin requests
-app.use(express.urlencoded({ extended: true })); // For parsing URL-encoded data
+); // Enable CORS for cross-origin requests // For parsing URL-encoded data
 app.use((req, res, next) => {
   console.log(`${req.method} Request made to:  ${req.url}`);
   // You can add more custom logic here
@@ -32,7 +33,7 @@ app.set("trust proxy", 1);
 // ✅ Global Rate Limiter Middleware (100 reqs per 15 minutes per IP)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // Limit each IP to 100 requests
+  max: 500, // Limit each IP to 100 requests
   message: "Too many requests from this IP. Please try again after 15 minutes.",
   standardHeaders: true,
   legacyHeaders: false,
@@ -50,9 +51,11 @@ app.get("/", (req, res) => {
 // Add API routes (example)
 import userRoutes from "./routes/user.routes.js"; // Sample route for users
 import blogRoutes from "./routes/blogs.routes.js"; // Sample route for users
+import likeRoutes from "./routes/like.routes.js"; // Sample route for likes                
 // import { automateDeepSeekCheck } from "./utils/checkAbusiveContent.js";
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/blogs", blogRoutes);
+app.use("/api/v1/likes", likeRoutes); // Sample route for 
 
 
 
