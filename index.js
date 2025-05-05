@@ -2,6 +2,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import rateLimit from "express-rate-limit"; // ✅ Rate limiter added
 import connectDB from "./config/dbConnection";
 
 // Initialize dotenv to access environment variables
@@ -23,6 +24,20 @@ app.use((req, res, next) => {
   // You can add more custom logic here
   next(); // Always call next() to pass control to the next middleware or route handler
 });
+
+
+// Trust proxy if behind something like Vercel, Heroku, or Render
+app.set("trust proxy", 1);
+
+// ✅ Global Rate Limiter Middleware (100 reqs per 15 minutes per IP)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Limit each IP to 100 requests
+  message: "Too many requests from this IP. Please try again after 15 minutes.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter); // Apply to all routes
 
 // MongoDB connection
 connectDB();
