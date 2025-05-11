@@ -26,6 +26,16 @@ const blogSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    originalBlog: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Blog",
+      default: null,
+    },
+    repostedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
     // Other optional fields can be added, like categories, comments, etc.
   },
   { timestamps: true } // Automatically manage createdAt and updatedAt

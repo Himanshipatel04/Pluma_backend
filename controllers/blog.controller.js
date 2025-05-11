@@ -66,7 +66,7 @@ export const getBlogById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const blog = await Blog.findById(id).populate("author", "name email");
+    const blog = await Blog.findById(id).populate("author", "name email").populate("repostedBy", "name email");
     if (!blog) {
       return res.status(404).json({ message: "Blog not found" });
     }
@@ -130,5 +130,34 @@ export const getBlogByUser = async (req, res) => {
     res.status(200).json({ blogs });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const repostBlog = async (req, res) => {
+  try {
+    const { id: blogId,userId } = req.params;
+    // const userId = req.user.id; // assuming middleware added user to req
+
+    const originalBlog = await Blog.findById(blogId); 
+    if (!originalBlog) {
+      return res.status(404).json({ message: "Original blog not found." });
+    }
+
+    const repostedBlog = new Blog({
+      title: originalBlog.title,
+      content: originalBlog.content,
+      tags: originalBlog.tags,
+      category: originalBlog.category,
+      author: userId,
+      originalBlog: originalBlog._id,
+      repostedBy: userId,
+    });
+
+    await repostedBlog.save();
+
+    res.status(201).json({ message: "Blog reposted successfully!", blog: repostedBlog });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Something went wrong." });
   }
 };
